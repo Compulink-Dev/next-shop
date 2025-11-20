@@ -5,7 +5,7 @@ import Link from "next/link";
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 import toast from "react-hot-toast";
-import { Pen, Trash } from "lucide-react";
+import { Pen, Trash, Plus } from "lucide-react";
 
 import AdminLoading from "@/components/admin/AdminLoading";
 import DataError from "@/components/admin/DataError";
@@ -83,88 +83,100 @@ export default function Banners() {
   if (!banner || banner.length === 0) return <DataError name="banner" />;
 
   return (
-    <div>
-      <div className="flex justify-between items-center">
-        <h1 className="py-4 text-2xl">Banners</h1>
-        <Button disabled={isCreating} onClick={() => createBanner()}>
-          {isCreating && <span className="loading loading-spinner"></span>}
-          Create
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            Banners
+          </h1>
+          <p className="text-base-content/60 mt-2">Manage your homepage banner slides</p>
+        </div>
+        <Button 
+          disabled={isCreating} 
+          onClick={() => createBanner()}
+          className="btn btn-primary gap-2 shadow-lg hover:shadow-xl transition-all"
+        >
+          {isCreating && <span className="loading loading-spinner loading-sm"></span>}
+          <Plus size={18} />
+          Create Banner
         </Button>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="table table-zebra">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {banner.map((bannerItem: any) => (
-              <tr key={bannerItem._id}>
-                <td>{formatId(bannerItem._id!)}</td>
-                <td>{bannerItem.name}</td>
-                <td>
-                  <Link
-                    href={`/admin/banners/${bannerItem._id}`}
-                    className="btn btn-ghost btn-sm"
-                  >
-                    <Pen size={14} />
-                    Edit
-                  </Link>
-                  &nbsp;
-                  <Dialog
-                    open={isDialogOpen && selectedBannerId === bannerItem._id}
-                    onOpenChange={setIsDialogOpen}
-                  >
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className="text-red-500 btn-sm"
-                        onClick={() => openDeleteDialog(bannerItem._id!)}
-                      >
-                        <Trash size={14} /> Delete
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[400px] bg-color">
-                      <DialogHeader>
-                        <DialogTitle>Confirm Deletion</DialogTitle>
-                        <DialogDescription>
-                          Are you sure you want to delete this banner! This
-                          action cannot be undone?
-                        </DialogDescription>
-                      </DialogHeader>
-                      <DialogFooter>
-                        <Button
-                          variant="outline"
-                          className="text-black"
-                          onClick={() => setIsDialogOpen(false)}
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          onClick={() =>
-                            deleteBanner({ bannerId: bannerItem._id! })
-                          }
-                          disabled={isDeleting}
-                        >
-                          {isDeleting ? (
-                            <span className="loading loading-spinner"></span>
-                          ) : (
-                            "Confirm"
-                          )}
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                </td>
+      <div className="bg-base-100 rounded-2xl shadow-xl overflow-hidden border border-base-300">
+        <div className="overflow-x-auto">
+          <table className="table">
+            <thead className="bg-base-200">
+              <tr className="text-base">
+                <th className="font-semibold">ID</th>
+                <th className="font-semibold">Name</th>
+                <th className="font-semibold text-right">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {banner.map((bannerItem: any) => (
+                <tr key={bannerItem._id} className="hover:bg-base-200/50 transition-colors">
+                  <td className="font-mono text-sm">{formatId(bannerItem._id!)}</td>
+                  <td className="font-medium">{bannerItem.name}</td>
+                  <td>
+                    <div className="flex items-center justify-end gap-2">
+                      <Link
+                        href={`/admin/banners/${bannerItem._id}`}
+                        className="btn btn-sm btn-ghost gap-1 hover:bg-primary hover:text-primary-content transition-all"
+                      >
+                        <Pen size={14} />
+                        Edit
+                      </Link>
+                      <Dialog
+                        open={isDialogOpen && selectedBannerId === bannerItem._id}
+                        onOpenChange={setIsDialogOpen}
+                      >
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            className="btn btn-sm gap-1 text-error hover:bg-error hover:text-error-content transition-all"
+                            onClick={() => openDeleteDialog(bannerItem._id!)}
+                          >
+                            <Trash size={14} /> Delete
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px] bg-base-100">
+                          <DialogHeader>
+                            <DialogTitle className="text-2xl font-bold">Confirm Deletion</DialogTitle>
+                            <DialogDescription className="text-base-content/70">
+                              Are you sure you want to delete this banner? This action cannot be undone.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <DialogFooter className="gap-2">
+                            <Button
+                              variant="outline"
+                              onClick={() => setIsDialogOpen(false)}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              onClick={() =>
+                                deleteBanner({ bannerId: bannerItem._id! })
+                              }
+                              disabled={isDeleting}
+                              className="gap-2"
+                            >
+                              {isDeleting ? (
+                                <span className="loading loading-spinner loading-sm"></span>
+                              ) : (
+                                "Delete Banner"
+                              )}
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

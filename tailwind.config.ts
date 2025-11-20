@@ -11,17 +11,36 @@ const config: Config = {
       {
         light: {
           ...require("daisyui/src/theming/themes")["light"],
-          primary: "#0000FF",
+          primary: "#0ea5e9", // Sky blue - tech/IT feel
+          secondary: "#6366f1", // Indigo
+          accent: "#14b8a6", // Teal
+          "base-100": "#ffffff",
+          "base-200": "#f8fafc",
+          "base-300": "#e2e8f0",
+          "base-content": "#1e293b", // Slate 800 for text
+          info: "#3b82f6",
+          success: "#10b981",
+          warning: "#f59e0b",
+          error: "#ef4444",
           ".toaster-con": {
             "background-color": "white",
-            color: "#0000FF",
+            color: "#0ea5e9",
           },
         },
         dark: {
           ...require("daisyui/src/theming/themes")["dark"],
-          primary: "#0000FF",
+          primary: "#0ea5e9", // Sky blue
+          secondary: "#6366f1", // Indigo
+          accent: "#14b8a6", // Teal
+          "base-100": "#0f172a", // Slate 900
+          "base-200": "#1e293b", // Slate 800
+          "base-300": "#334155", // Slate 700
+          info: "#3b82f6",
+          success: "#10b981",
+          warning: "#f59e0b",
+          error: "#ef4444",
           ".toaster-con": {
-            "background-color": "black",
+            "background-color": "#1e293b",
             color: "white",
           },
         },

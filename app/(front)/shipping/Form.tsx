@@ -43,55 +43,66 @@ const Form = () => {
     required,
     pattern,
   }: {
-    id: Extract<keyof ShippingAddress, string>; // Ensure 'id' is only a string
+    id: Extract<keyof ShippingAddress, string>;
     name: string;
     required?: boolean;
     pattern?: ValidationRule<RegExp>;
   }) => (
-    <div className="mb-2">
+    <div>
       <label className="label" htmlFor={id}>
-        {name}
+        <span className="label-text font-semibold text-base-content">{name}</span>
       </label>
       <input
         type="text"
-        id={id} // 'id' is now guaranteed to be a string
+        id={id}
         {...register(id, {
           required: required && `${name} is required`,
           pattern,
         })}
-        className="input input-bordered w-full max-w-sm"
+        className="input input-bordered w-full bg-base-100 text-base-content border-base-300 focus:border-primary"
+        placeholder={`Enter ${name.toLowerCase()}`}
       />
       {errors[id]?.message && (
-        <div className="text-error">{errors[id]?.message}</div>
+        <div className="text-error text-sm mt-1">{errors[id]?.message}</div>
       )}
     </div>
   );
 
   return (
-    <div>
-      <CheckoutSteps current={1} />
-      <div className="max-w-sm mx-auto card bg-base-300 my-4">
-        <div className="card-body">
-          <h1 className="card-title">Shipping Address</h1>
-          <form onSubmit={handleSubmit(formSubmit)}>
-            <FormInput name="Full Name" id="fullName" required />
-            <FormInput name="Address" id="address" required />
-            <FormInput name="City" id="city" required />
-            <FormInput name="Postal Code" id="postalCode" required />
-            <FormInput name="Country" id="country" required />
-            <div className="my-2">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="btn btn-primary w-full"
-              >
-                {isSubmitting && (
-                  <span className="loading loading-spinner"></span>
-                )}
-                Next
-              </button>
-            </div>
-          </form>
+    <div className="min-h-screen bg-base-100">
+      <div className="container mx-auto px-4 lg:px-8 py-8">
+        <CheckoutSteps current={1} />
+        
+        <div className="max-w-2xl mx-auto mt-8">
+          <div className="bg-base-200 rounded-2xl p-8 border border-base-300">
+            <h1 className="text-3xl font-bold text-base-content mb-2">Shipping Address</h1>
+            <p className="text-base-content/60 mb-8">Enter your delivery information</p>
+            
+            <form onSubmit={handleSubmit(formSubmit)} className="space-y-6">
+              <FormInput name="Full Name" id="fullName" required />
+              <FormInput name="Address" id="address" required />
+              
+              <div className="grid md:grid-cols-2 gap-6">
+                <FormInput name="City" id="city" required />
+                <FormInput name="Postal Code" id="postalCode" required />
+              </div>
+              
+              <FormInput name="Country" id="country" required />
+              
+              <div className="pt-4">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="btn btn-primary w-full rounded-full btn-lg gap-2 shadow-lg"
+                >
+                  {isSubmitting && (
+                    <span className="loading loading-spinner loading-sm"></span>
+                  )}
+                  Continue to Payment
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </div>

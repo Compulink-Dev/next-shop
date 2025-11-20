@@ -39,15 +39,15 @@ export async function POST() {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
   await dbConnect();
-  const product = new BannerModel({
+  const banner = new BannerModel({
     name: "sample name",
     slug: "sample-name-" + Math.random(),
     image: "/images/shirt1.jpg",
   });
   try {
-    await product.save();
+    await banner.save();
     return Response.json(
-      { message: "Product created successfully", product },
+      { message: "Banner created successfully", banner },
       {
         status: 201,
       }

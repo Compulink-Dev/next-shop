@@ -9,6 +9,7 @@ import useSWRMutation from "swr/mutation";
 import { useState } from "react";
 import { fetcher } from "@/lib/services/fetcher";
 import { formatDateTime } from "@/lib/utils";
+import { MapPin, CreditCard, Package, CheckCircle, XCircle, Clock, Truck } from "lucide-react";
 
 export default function OrderDetails({
   orderId,
@@ -122,10 +123,16 @@ export default function OrderDetails({
       });
   };
 
-  if (error) return error.message;
-  if (!data) return "Loading...";
-
-  console.log("data", data);
+  if (error) return (
+    <div className="container mx-auto px-4 lg:px-8 py-16 text-center">
+      <div className="text-error">Error: {error.message}</div>
+    </div>
+  );
+  if (!data) return (
+    <div className="container mx-auto px-4 lg:px-8 py-16 text-center">
+      <span className="loading loading-spinner loading-lg text-primary"></span>
+    </div>
+  );
 
   const {
     paymentMethod,
@@ -143,165 +150,229 @@ export default function OrderDetails({
   } = data;
 
   return (
-    <div>
-      <h1 className="text-2xl py-4">Order {orderId}</h1>
-      <div className="grid md:grid-cols-4 md:gap-5 my-4">
-        <div className="md:col-span-3">
-          {/* Shipping Address */}
-          <div className="card bg-base-300">
-            <div className="card-body">
-              <h2 className="card-title">Shipping Address</h2>
-              <p>{shippingAddress.fullName}</p>
-              <p>
-                {shippingAddress.address}, {shippingAddress.city},{" "}
-                {shippingAddress.postalCode}, {shippingAddress.country}
-              </p>
-              {isDelivered ? (
-                <div className="text-success">Delivered at {deliveredAt}</div>
-              ) : (
-                <div className="text-error">Not Delivered</div>
-              )}
+    <div className="min-h-screen bg-base-100">
+      <div className="container mx-auto px-4 lg:px-8 py-8">
+        {/* Page Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <h1 className="text-4xl font-bold text-base-content mb-2">Order Details</h1>
+              <p className="text-base-content/60">Order ID: <span className="font-mono text-primary">#{orderId}</span></p>
             </div>
-          </div>
-
-          {/* Payment Method */}
-          <div className="card bg-base-300 mt-4">
-            <div className="card-body">
-              <h2 className="card-title">Payment Method</h2>
-              <p>{paymentMethod}</p>
+            <div className="flex items-center gap-3">
               {isPaid ? (
-                <div className="text-success">
-                  Paid at {formatDateTime(createdAt).dateTime}
+                <div className="badge badge-success badge-lg gap-2 py-4">
+                  <CheckCircle className="w-4 h-4" />
+                  Paid
                 </div>
               ) : (
-                <div className="text-error">Not Paid</div>
+                <div className="badge badge-warning badge-lg gap-2 py-4">
+                  <Clock className="w-4 h-4" />
+                  Pending Payment
+                </div>
+              )}
+              {isDelivered ? (
+                <div className="badge badge-success badge-lg gap-2 py-4">
+                  <Truck className="w-4 h-4" />
+                  Delivered
+                </div>
+              ) : (
+                <div className="badge badge-warning badge-lg gap-2 py-4">
+                  <Package className="w-4 h-4" />
+                  Processing
+                </div>
               )}
             </div>
           </div>
-
-          {/* Items List */}
-          <div className="card bg-base-300 mt-4">
-            <div className="card-body">
-              <h2 className="card-title">Items</h2>
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Item</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.map((item: any) => (
-                    <tr key={item.slug}>
-                      <td>
-                        <Link
-                          href={`/product/${item.slug}`}
-                          className="flex items-center"
-                        >
-                          <Image
-                            src={item.image}
-                            alt={item.name}
-                            width={50}
-                            height={50}
-                          />
-                          <span className="px-2">
-                            {item.name} ({item.color} {item.size})
-                          </span>
-                        </Link>
-                      </td>
-                      <td>{item.qty}</td>
-                      <td>${item.price}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <p className="text-sm text-base-content/60 mt-2">
+            Ordered on {formatDateTime(createdAt).dateTime}
+          </p>
         </div>
 
-        {/* Order Summary */}
-        <div>
-          <div className="card bg-base-300">
-            <div className="card-body p-6">
-              <h2 className="card-title">Order Summary</h2>
-              <ul className="">
-                <li>
-                  <div className="mb-2 flex justify-between">
-                    <div>Items</div>
-                    <div>${itemsPrice}</div>
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Order Details */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Shipping Address */}
+            <div className="bg-base-200 rounded-2xl p-6 border border-base-300">
+              <div className="flex items-start gap-3 mb-4">
+                <div className="bg-primary/10 p-3 rounded-xl">
+                  <MapPin className="w-6 h-6 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <h2 className="text-2xl font-bold text-base-content mb-4">Shipping Address</h2>
+                  <div className="space-y-1">
+                    <p className="font-semibold text-base-content">{shippingAddress.fullName}</p>
+                    <p className="text-base-content/70">{shippingAddress.address}</p>
+                    <p className="text-base-content/70">
+                      {shippingAddress.city}, {shippingAddress.postalCode}
+                    </p>
+                    <p className="text-base-content/70">{shippingAddress.country}</p>
                   </div>
-                </li>
-                <li>
-                  <div className="mb-2 flex justify-between">
-                    <div>Tax</div>
-                    <div>${taxPrice}</div>
-                  </div>
-                </li>
-                <li>
-                  <div className="mb-2 flex justify-between">
-                    <div>Shipping</div>
-                    <div>${shippingPrice}</div>
-                  </div>
-                </li>
-                <li>
-                  <div className="mb-2 flex justify-between">
-                    <div>Total</div>
-                    <div>${totalPrice}</div>
-                  </div>
-                </li>
+                </div>
+              </div>
+              {isDelivered ? (
+                <div className="flex items-center gap-2 mt-4 p-3 bg-success/10 rounded-xl">
+                  <CheckCircle className="w-5 h-5 text-success" />
+                  <span className="text-success font-semibold">Delivered on {formatDateTime(deliveredAt).dateTime}</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 mt-4 p-3 bg-warning/10 rounded-xl">
+                  <Clock className="w-5 h-5 text-warning" />
+                  <span className="text-warning font-semibold">Awaiting Delivery</span>
+                </div>
+              )}
+            </div>
 
-                {/* Payment Buttons */}
-                {!isPaid && paymentMethod === "PayPal" && (
-                  <li>
-                    <PayPalScriptProvider
-                      options={{ clientId: paypalClientId }}
-                    >
-                      <PayPalButtons
-                        createOrder={createPayPalOrder}
-                        onApprove={onApprovePayPalOrder}
-                      />
-                    </PayPalScriptProvider>
-                  </li>
-                )}
-                {!isPaid && paymentMethod === "PayNow" && (
-                  <li>
-                    <button
-                      onClick={createPayNowOrder}
-                      className="btn"
-                      disabled={loading}
-                    >
-                      {loading ? (
-                        "Processing..."
-                      ) : (
-                        <img
-                          src={
-                            "https://www.paynow.co.zw/Content/buttons/medium_buttons/button_add-to-cart_medium.png"
-                          }
-                          width={150}
-                          height={150}
-                          alt=""
+            {/* Payment Method */}
+            <div className="bg-base-200 rounded-2xl p-6 border border-base-300">
+              <div className="flex items-start gap-3 mb-4">
+                <div className="bg-primary/10 p-3 rounded-xl">
+                  <CreditCard className="w-6 h-6 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <h2 className="text-2xl font-bold text-base-content mb-4">Payment Method</h2>
+                  <p className="text-lg font-semibold text-base-content">{paymentMethod}</p>
+                </div>
+              </div>
+              {isPaid ? (
+                <div className="flex items-center gap-2 mt-4 p-3 bg-success/10 rounded-xl">
+                  <CheckCircle className="w-5 h-5 text-success" />
+                  <span className="text-success font-semibold">Paid on {formatDateTime(paidAt).dateTime}</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 mt-4 p-3 bg-error/10 rounded-xl">
+                  <XCircle className="w-5 h-5 text-error" />
+                  <span className="text-error font-semibold">Payment Pending</span>
+                </div>
+              )}
+            </div>
+
+            {/* Order Items */}
+            <div className="bg-base-200 rounded-2xl p-6 border border-base-300">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="bg-primary/10 p-3 rounded-xl">
+                  <Package className="w-6 h-6 text-primary" />
+                </div>
+                <h2 className="text-2xl font-bold text-base-content">Order Items</h2>
+              </div>
+              
+              <div className="space-y-4">
+                {items.map((item: any) => (
+                  <div key={item.slug} className="flex gap-4 p-4 bg-base-100 rounded-xl border border-base-300">
+                    <Link href={`/product/${item.slug}`} className="flex-shrink-0">
+                      <div className="w-20 h-20 bg-base-200 rounded-lg overflow-hidden">
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          width={80}
+                          height={80}
+                          className="w-full h-full object-contain p-2"
                         />
+                      </div>
+                    </Link>
+                    <div className="flex-1 min-w-0">
+                      <Link 
+                        href={`/product/${item.slug}`}
+                        className="font-semibold text-base-content hover:text-primary transition-colors line-clamp-2"
+                      >
+                        {item.name}
+                      </Link>
+                      {(item.color || item.size) && (
+                        <p className="text-sm text-base-content/60 mt-1">
+                          {item.color} {item.color && item.size && '•'} {item.size}
+                        </p>
                       )}
-                    </button>
-                  </li>
-                )}
+                      <div className="flex items-center gap-4 mt-2">
+                        <span className="text-base-content/70">Qty: {item.qty}</span>
+                        <span className="text-lg font-bold text-primary">${item.price}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
 
-                {session?.user.isAdmin && !isDelivered && (
-                  <li>
-                    <button
-                      className="btn w-full my-2"
-                      onClick={() => deliverOrder()}
-                      disabled={isDelivering}
-                    >
-                      {isDelivering && (
-                        <span className="loading loading-spinner"></span>
-                      )}
-                      Mark as delivered
-                    </button>
-                  </li>
-                )}
-              </ul>
+          {/* Order Summary Sidebar */}
+          <div>
+            <div className="bg-base-200 rounded-2xl p-6 border border-base-300 sticky top-24">
+              <h2 className="text-2xl font-bold text-base-content mb-6">Order Summary</h2>
+              
+              <div className="space-y-4 mb-6">
+                <div className="flex justify-between text-base-content/70">
+                  <span>Items</span>
+                  <span className="font-semibold">${itemsPrice}</span>
+                </div>
+                <div className="flex justify-between text-base-content/70">
+                  <span>Tax</span>
+                  <span className="font-semibold">${taxPrice}</span>
+                </div>
+                <div className="flex justify-between text-base-content/70">
+                  <span>Shipping</span>
+                  <span className="font-semibold">${shippingPrice}</span>
+                </div>
+                <div className="divider my-2"></div>
+                <div className="flex justify-between text-2xl font-bold text-base-content">
+                  <span>Total</span>
+                  <span className="text-primary">${totalPrice}</span>
+                </div>
+              </div>
+
+              {/* Payment Buttons */}
+              {!isPaid && paymentMethod === "PayPal" && (
+                <div className="mb-4">
+                  <PayPalScriptProvider options={{ clientId: paypalClientId }}>
+                    <PayPalButtons
+                      createOrder={createPayPalOrder}
+                      onApprove={onApprovePayPalOrder}
+                    />
+                  </PayPalScriptProvider>
+                </div>
+              )}
+              
+              {!isPaid && paymentMethod === "PayNow" && (
+                <button
+                  onClick={createPayNowOrder}
+                  className="btn btn-primary w-full rounded-full btn-lg mb-4"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <span className="loading loading-spinner loading-sm"></span>
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="w-5 h-5" />
+                      Pay with PayNow
+                    </>
+                  )}
+                </button>
+              )}
+
+              {session?.user.isAdmin && !isDelivered && (
+                <button
+                  className="btn btn-success w-full rounded-full gap-2"
+                  onClick={() => deliverOrder()}
+                  disabled={isDelivering}
+                >
+                  {isDelivering ? (
+                    <span className="loading loading-spinner loading-sm"></span>
+                  ) : (
+                    <Truck className="w-5 h-5" />
+                  )}
+                  Mark as Delivered
+                </button>
+              )}
+
+              {isPaid && (
+                <div className="text-center text-sm text-base-content/60 mt-4">
+                  <p>Need help with your order?</p>
+                  <Link href="/" className="text-primary hover:underline">
+                    Contact Support
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>

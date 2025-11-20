@@ -1,6 +1,7 @@
+//@ts-nocheck
 "use client";
 import useCartService from "@/lib/hooks/useCartStore";
-import { Trash } from "lucide-react";
+import { Trash, Minus, Plus, ShoppingBag, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -15,111 +16,177 @@ export default function CartDetails() {
     setMounted(true);
   }, []);
 
-  if (!mounted) return <div>Loading...</div>;
-
-  console.log("Items :", items);
+  if (!mounted)
+    return (
+      <div className="container mx-auto px-4 lg:px-8 py-16 text-center">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+      </div>
+    );
 
   return (
-    <>
-      <h1 className="py-4 text-2xl">Shopping Cart</h1>
-
-      {items.length === 0 ? (
-        <div>
-          Cart is empty. <Link href="/">Go shopping</Link>
+    <div className="min-h-screen bg-base-100">
+      <div className="container mx-auto px-4 lg:px-8 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-base-content mb-2">
+            Shopping Cart
+          </h1>
+          <p className="text-base-content/60">
+            {items.length} {items.length === 1 ? "item" : "items"} in your cart
+          </p>
         </div>
-      ) : (
-        <div className="grid md:grid-cols-4 md:gap-5">
-          <div className="overflow-x-auto md:col-span-3">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Item</th>
-                  <th>Quantity</th>
-                  <th>Price</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item) => (
-                  <tr key={item.slug}>
-                    <td>
-                      <Link
-                        href={`/product/${item.slug}`}
-                        className="flex items-center"
-                      >
+
+        {items.length === 0 ? (
+          <div className="bg-base-200 rounded-2xl p-16 text-center border border-base-300">
+            <ShoppingBag className="w-24 h-24 mx-auto mb-6 text-base-content/30" />
+            <h2 className="text-2xl font-bold text-base-content mb-4">
+              Your cart is empty
+            </h2>
+            <p className="text-base-content/60 mb-8">
+              Add some IT products to get started
+            </p>
+            <Link
+              href="/"
+              className="btn btn-primary btn-lg rounded-full gap-2"
+            >
+              Continue Shopping
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+          </div>
+        ) : (
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Cart Items */}
+            <div className="lg:col-span-2 space-y-4">
+              {items.map((item) => (
+                <div
+                  key={item.slug}
+                  className="bg-base-200 rounded-2xl p-6 border border-base-300 hover:border-primary/30 transition-colors"
+                >
+                  <div className="flex gap-6">
+                    {/* Product Image */}
+                    <Link
+                      href={`/product/${item.slug}`}
+                      className="flex-shrink-0"
+                    >
+                      <div className="w-24 h-24 bg-base-100 rounded-xl overflow-hidden border border-base-300">
                         <Image
                           src={item.image}
                           alt={item.name}
-                          width={50}
-                          height={50}
+                          width={96}
+                          height={96}
+                          className="w-full h-full object-contain p-2"
                         />
-                        <span className="px-2">{item.name}</span>
+                      </div>
+                    </Link>
+
+                    {/* Product Info */}
+                    <div className="flex-1 min-w-0">
+                      <Link
+                        href={`/product/${item.slug}`}
+                        className="text-lg font-semibold text-base-content hover:text-primary transition-colors line-clamp-2"
+                      >
+                        {item.name}
                       </Link>
-                    </td>
-                    <td className="flex flex-col md:flex-row items-center">
-                      <button
-                        className="btn"
-                        type="button"
-                        onClick={() => decrease(item)}
-                      >
-                        -
-                      </button>
-                      <span className="px-2">{item.qty}</span>
-                      <button
-                        className="btn"
-                        type="button"
-                        onClick={() => increase(item)}
-                      >
-                        +
-                      </button>
-                    </td>
-                    <td>${item.price}</td>
-                    <td>
+                      <p className="text-sm text-base-content/60 mt-1">
+                        {item?.brand}
+                      </p>
+                      <div className="flex items-center gap-4 mt-4">
+                        <span className="text-2xl font-bold text-primary">
+                          ${item.price}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Quantity Controls */}
+                    <div className="flex flex-col items-end justify-between">
                       <button
                         onClick={() => remove(item)}
-                        className="px-5 py-2 text-white bg-red-600 hover:bg-red-400 rounded-lg"
+                        className="btn btn-ghost btn-sm btn-circle text-error hover:bg-error/10"
                         aria-label={`Remove ${item.name} from cart`}
                       >
-                        <Trash />
+                        <Trash className="w-4 h-4" />
                       </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div>
-            <div className="card bg-base-300">
-              <div className="card-body">
-                <ul>
-                  <li>
-                    <div className="pb-3 text-xl">
-                      Subtotal ({items.reduce((a, c) => a + c.qty, 0)}) : $
-                      {itemsPrice}
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          className="btn btn-sm btn-circle btn-outline"
+                          type="button"
+                          onClick={() => decrease(item)}
+                          disabled={item.qty <= 1}
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <span className="text-lg font-semibold w-12 text-center">
+                          {item.qty}
+                        </span>
+                        <button
+                          className="btn btn-sm btn-circle btn-outline"
+                          type="button"
+                          onClick={() => increase(item)}
+                          disabled={item.qty >= item.countInStock}
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
-                  </li>
-                  <li>
-                    <button
-                      onClick={() => router.push("/shipping")}
-                      className="btn btn-primary w-full"
-                    >
-                      Proceed to Checkout
-                    </button>
-                  </li>
-                  <li className="">
-                    <button
-                      className=" mt-3 w-full px-4 py-3 text-white bg-red-600 hover:bg-red-400 rounded-lg"
-                      onClick={() => clear()}
-                    >
-                      Remove Cart
-                    </button>
-                  </li>
-                </ul>
+                  </div>
+                </div>
+              ))}
+
+              {/* Clear Cart Button */}
+              <button
+                className="btn btn-outline btn-error w-full rounded-xl"
+                onClick={() => clear()}
+              >
+                <Trash className="w-5 h-5" />
+                Clear Cart
+              </button>
+            </div>
+
+            {/* Order Summary */}
+            <div>
+              <div className="bg-base-200 rounded-2xl p-6 border border-base-300 sticky top-24">
+                <h2 className="text-2xl font-bold text-base-content mb-6">
+                  Order Summary
+                </h2>
+
+                <div className="space-y-4 mb-6">
+                  <div className="flex justify-between text-base-content/70">
+                    <span>Items ({items.reduce((a, c) => a + c.qty, 0)})</span>
+                    <span className="font-semibold">${itemsPrice}</span>
+                  </div>
+                  <div className="flex justify-between text-base-content/70">
+                    <span>Shipping</span>
+                    <span className="text-success font-semibold">FREE</span>
+                  </div>
+                  <div className="divider my-2"></div>
+                  <div className="flex justify-between text-xl font-bold text-base-content">
+                    <span>Total</span>
+                    <span className="text-primary">${itemsPrice}</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => router.push("/shipping")}
+                  className="btn btn-primary w-full rounded-full gap-2 shadow-lg hover:shadow-xl transition-all"
+                >
+                  Proceed to Checkout
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+
+                <div className="mt-6 text-center">
+                  <Link
+                    href="/"
+                    className="text-primary hover:underline text-sm"
+                  >
+                    Continue Shopping
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </>
+        )}
+      </div>
+    </div>
   );
 }

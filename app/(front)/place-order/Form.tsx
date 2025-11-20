@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import useSWRMutation from "swr/mutation";
 import Image from "next/image";
+import { MapPin, CreditCard, Package, Edit2, ShoppingCart } from "lucide-react";
 
 const Form = () => {
   const router = useRouter();
@@ -67,134 +68,162 @@ const Form = () => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return <></>;
-
-  console.log("Order Data Received : ", items);
+  if (!mounted) return (
+    <div className="container mx-auto px-4 lg:px-8 py-16 text-center">
+      <span className="loading loading-spinner loading-lg text-primary"></span>
+    </div>
+  );
 
   return (
-    <div>
-      <CheckoutSteps current={4} />
+    <div className="min-h-screen bg-base-100">
+      <div className="container mx-auto px-4 lg:px-8 py-8">
+        <CheckoutSteps current={4} />
 
-      <div className="grid md:grid-cols-4 md:gap-5 my-4">
-        <div className="overflow-x-auto md:col-span-3">
-          <div className="card bg-base-300">
-            <div className="card-body">
-              <h2 className="card-title">Shipping Address</h2>
-              <p>{shippingAddress.fullName}</p>
-              <p>
-                {shippingAddress.address}, {shippingAddress.city},{" "}
-                {shippingAddress.postalCode}, {shippingAddress.country}{" "}
-              </p>
-              <div>
-                <Link className="btn" href="/shipping">
-                  Edit
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          <div className="card bg-base-300 mt-4">
-            <div className="card-body">
-              <h2 className="card-title">Payment Method</h2>
-              <p>{paymentMethod}</p>
-              <div>
-                <Link className="btn" href="/payment">
-                  Edit
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          <div className="card bg-base-300 mt-4">
-            <div className="card-body">
-              <h2 className="card-title">Items</h2>
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Item</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {items.map((item: any) => (
-                    <tr key={item.slug}>
-                      <td>
-                        <Link
-                          href={`/product/${item.slug}`}
-                          className="flex items-center"
-                        >
-                          <Image
-                            src={item.image}
-                            alt={item.name}
-                            width={50}
-                            height={50}
-                          ></Image>
-                          <span className="px-2">
-                            {item.name}({item.color} {item.size})
-                          </span>
-                        </Link>
-                      </td>
-                      <td>
-                        <span>{item.qty}</span>
-                      </td>
-                      <td>${item.price}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <div>
-                <Link className="btn" href="/cart">
-                  Edit
-                </Link>
-              </div>
-            </div>
-          </div>
+        {/* Page Header */}
+        <div className="mt-8 mb-8">
+          <h1 className="text-4xl font-bold text-base-content mb-2">Review Your Order</h1>
+          <p className="text-base-content/60">Please review your order details before placing your order</p>
         </div>
 
-        <div>
-          <div className="card bg-base-300">
-            <div className="card-body">
-              <h2 className="card-title">Order Summary</h2>
-              <ul className="space-y-3">
-                <li>
-                  <div className=" flex justify-between">
-                    <div>Items</div>
-                    <div>${itemsPrice}</div>
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Order Details */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Shipping Address */}
+            <div className="bg-base-200 rounded-2xl p-6 border border-base-300">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="bg-primary/10 p-3 rounded-xl">
+                    <MapPin className="w-6 h-6 text-primary" />
                   </div>
-                </li>
-                <li>
-                  <div className=" flex justify-between">
-                    <div>Tax</div>
-                    <div>${taxPrice}</div>
-                  </div>
-                </li>
-                <li>
-                  <div className=" flex justify-between">
-                    <div>Shipping</div>
-                    <div>${shippingPrice}</div>
-                  </div>
-                </li>
-                <li>
-                  <div className=" flex justify-between">
-                    <div>Total</div>
-                    <div>${totalPrice}</div>
-                  </div>
-                </li>
+                  <h2 className="text-2xl font-bold text-base-content">Shipping Address</h2>
+                </div>
+                <Link href="/shipping" className="btn btn-ghost btn-sm gap-2 hover:bg-primary/10">
+                  <Edit2 className="w-4 h-4" />
+                  Edit
+                </Link>
+              </div>
+              <div className="ml-16 space-y-1">
+                <p className="font-semibold text-base-content">{shippingAddress.fullName}</p>
+                <p className="text-base-content/70">{shippingAddress.address}</p>
+                <p className="text-base-content/70">
+                  {shippingAddress.city}, {shippingAddress.postalCode}
+                </p>
+                <p className="text-base-content/70">{shippingAddress.country}</p>
+              </div>
+            </div>
 
-                <li>
-                  <button
-                    onClick={() => placeOrder()}
-                    disabled={isPlacing}
-                    className="btn btn-primary w-full"
-                  >
-                    {isPlacing && (
-                      <span className="loading loading-spinner"></span>
-                    )}
-                    Place Order
-                  </button>
-                </li>
-              </ul>
+            {/* Payment Method */}
+            <div className="bg-base-200 rounded-2xl p-6 border border-base-300">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="bg-primary/10 p-3 rounded-xl">
+                    <CreditCard className="w-6 h-6 text-primary" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-base-content">Payment Method</h2>
+                </div>
+                <Link href="/payment" className="btn btn-ghost btn-sm gap-2 hover:bg-primary/10">
+                  <Edit2 className="w-4 h-4" />
+                  Edit
+                </Link>
+              </div>
+              <div className="ml-16">
+                <p className="text-lg font-semibold text-base-content">{paymentMethod}</p>
+              </div>
+            </div>
+
+            {/* Order Items */}
+            <div className="bg-base-200 rounded-2xl p-6 border border-base-300">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="bg-primary/10 p-3 rounded-xl">
+                    <Package className="w-6 h-6 text-primary" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-base-content">Order Items</h2>
+                </div>
+                <Link href="/cart" className="btn btn-ghost btn-sm gap-2 hover:bg-primary/10">
+                  <Edit2 className="w-4 h-4" />
+                  Edit
+                </Link>
+              </div>
+              
+              <div className="space-y-4">
+                {items.map((item: any) => (
+                  <div key={item.slug} className="flex gap-4 p-4 bg-base-100 rounded-xl border border-base-300">
+                    <Link href={`/product/${item.slug}`} className="flex-shrink-0">
+                      <div className="w-20 h-20 bg-base-200 rounded-lg overflow-hidden">
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          width={80}
+                          height={80}
+                          className="w-full h-full object-contain p-2"
+                        />
+                      </div>
+                    </Link>
+                    <div className="flex-1 min-w-0">
+                      <Link 
+                        href={`/product/${item.slug}`}
+                        className="font-semibold text-base-content hover:text-primary transition-colors line-clamp-2"
+                      >
+                        {item.name}
+                      </Link>
+                      {(item.color || item.size) && (
+                        <p className="text-sm text-base-content/60 mt-1">
+                          {item.color} {item.color && item.size && '•'} {item.size}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-4 mt-2">
+                        <span className="text-base-content/70">Qty: {item.qty}</span>
+                        <span className="text-lg font-bold text-primary">${item.price}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Order Summary Sidebar */}
+          <div>
+            <div className="bg-base-200 rounded-2xl p-6 border border-base-300 sticky top-24">
+              <h2 className="text-2xl font-bold text-base-content mb-6">Order Summary</h2>
+              
+              <div className="space-y-4 mb-6">
+                <div className="flex justify-between text-base-content/70">
+                  <span>Items ({items.reduce((a, c) => a + c.qty, 0)})</span>
+                  <span className="font-semibold">${itemsPrice}</span>
+                </div>
+                <div className="flex justify-between text-base-content/70">
+                  <span>Tax</span>
+                  <span className="font-semibold">${taxPrice}</span>
+                </div>
+                <div className="flex justify-between text-base-content/70">
+                  <span>Shipping</span>
+                  <span className="font-semibold">${shippingPrice}</span>
+                </div>
+                <div className="divider my-2"></div>
+                <div className="flex justify-between text-2xl font-bold text-base-content">
+                  <span>Total</span>
+                  <span className="text-primary">${totalPrice}</span>
+                </div>
+              </div>
+
+              <button
+                onClick={() => placeOrder()}
+                disabled={isPlacing}
+                className="btn btn-primary w-full rounded-full btn-lg gap-2 shadow-lg hover:shadow-xl transition-all"
+              >
+                {isPlacing ? (
+                  <span className="loading loading-spinner loading-sm"></span>
+                ) : (
+                  <ShoppingCart className="w-5 h-5" />
+                )}
+                {isPlacing ? 'Processing...' : 'Place Order'}
+              </button>
+
+              <p className="text-xs text-center text-base-content/60 mt-4">
+                By placing your order, you agree to our terms and conditions
+              </p>
             </div>
           </div>
         </div>

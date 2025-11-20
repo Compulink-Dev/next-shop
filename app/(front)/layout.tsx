@@ -17,7 +17,7 @@ export default function FrontLayout({
   };
 
 
-  return <main className="flex-grow container mx-auto px-4">
+  return <main className="flex-grow">
     <PaynowReactWrapper {...paynow_config}>
       {children}
     </PaynowReactWrapper>

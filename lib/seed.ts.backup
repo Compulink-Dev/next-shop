@@ -1,0 +1,334 @@
+import dbConnect from './dbConnect';
+import ProductModel from './models/ProductModel';
+import BannerModel from './models/BannerModel';
+
+// IT Company Products
+const products = [
+  // Hardware & Computers
+  {
+    part: "HW-001",
+    name: "Dell Latitude 7430 Business Laptop",
+    slug: "dell-latitude-7430-business-laptop",
+    category: "Laptops & Computers",
+    image: "/images/laptop.png",
+    price: 1299.99,
+    brand: "Dell",
+    rating: 4.8,
+    numReviews: 156,
+    countInStock: 15,
+    description: "14-inch enterprise laptop with Intel Core i7, 16GB RAM, 512GB SSD. Built for business professionals with military-grade durability and enterprise security.",
+    isFeatured: true,
+  },
+  {
+    part: "ELEC-002",
+    name: "4K Ultra HD Smart TV 55\"",
+    slug: "4k-ultra-hd-smart-tv-55",
+    category: "Electronics",
+    image: "/images/banner1.jpg",
+    price: 599.99,
+    brand: "VisionPro",
+    rating: 4.7,
+    numReviews: 89,
+    countInStock: 12,
+    description: "Stunning 4K resolution with HDR support, built-in streaming apps, and voice control. Transform your living room into a home theater.",
+    isFeatured: true,
+  },
+  {
+    part: "ELEC-003",
+    name: "Gaming Laptop Pro X",
+    slug: "gaming-laptop-pro-x",
+    category: "Electronics",
+    image: "/images/laptop.png",
+    price: 1299.99,
+    brand: "GameForce",
+    rating: 4.8,
+    numReviews: 156,
+    countInStock: 8,
+    description: "High-performance gaming laptop with RTX graphics, 16GB RAM, 1TB SSD, and RGB keyboard. Dominate every game with ease.",
+    isFeatured: true,
+  },
+  {
+    part: "ELEC-004",
+    name: "Smartphone Pro Max 256GB",
+    slug: "smartphone-pro-max-256gb",
+    category: "Electronics",
+    image: "/images/ai2.jpeg",
+    price: 899.99,
+    brand: "TechMobile",
+    rating: 4.6,
+    numReviews: 234,
+    countInStock: 34,
+    description: "Latest flagship smartphone with triple camera system, 5G connectivity, and all-day battery life. Stay connected in style.",
+  },
+  {
+    part: "ELEC-005",
+    name: "Wireless Charging Pad",
+    slug: "wireless-charging-pad",
+    category: "Electronics",
+    image: "/images/banner2.jpg",
+    price: 29.99,
+    brand: "ChargeFast",
+    rating: 4.3,
+    numReviews: 67,
+    countInStock: 120,
+    description: "Fast wireless charging for all compatible devices. Sleek design with LED indicator and overheat protection.",
+  },
+
+  // Clothing
+  {
+    part: "CLTH-001",
+    name: "Classic Cotton T-Shirt",
+    slug: "classic-cotton-tshirt",
+    category: "Clothing",
+    image: "/images/shirt1.jpg",
+    price: 24.99,
+    brand: "ComfortWear",
+    rating: 4.4,
+    numReviews: 92,
+    countInStock: 150,
+    description: "100% premium cotton t-shirt with a comfortable fit. Available in multiple colors and sizes. Perfect for everyday wear.",
+  },
+  {
+    part: "CLTH-002",
+    name: "Slim Fit Denim Jeans",
+    slug: "slim-fit-denim-jeans",
+    category: "Clothing",
+    image: "/images/pants1.jpg",
+    price: 59.99,
+    brand: "DenimStyle",
+    rating: 4.5,
+    numReviews: 145,
+    countInStock: 78,
+    description: "Premium denim jeans with a modern slim fit. Durable fabric with stretch for maximum comfort and style.",
+  },
+  {
+    part: "CLTH-003",
+    name: "Winter Wool Jacket",
+    slug: "winter-wool-jacket",
+    category: "Clothing",
+    image: "/images/shirt2.jpg",
+    price: 129.99,
+    brand: "WarmStyle",
+    rating: 4.7,
+    numReviews: 56,
+    countInStock: 23,
+    description: "Stylish winter jacket made from premium wool blend. Water-resistant and windproof with internal pockets.",
+  },
+  {
+    part: "CLTH-004",
+    name: "Athletic Running Shoes",
+    slug: "athletic-running-shoes",
+    category: "Clothing",
+    image: "/images/pants2.jpg",
+    price: 89.99,
+    brand: "SportMax",
+    rating: 4.6,
+    numReviews: 178,
+    countInStock: 65,
+    description: "Lightweight running shoes with excellent cushioning and breathable mesh. Perfect for runners and athletes.",
+  },
+  {
+    part: "CLTH-005",
+    name: "Formal Dress Shirt",
+    slug: "formal-dress-shirt",
+    category: "Clothing",
+    image: "/images/shirt3.jpg",
+    price: 44.99,
+    brand: "ClassicFit",
+    rating: 4.4,
+    numReviews: 83,
+    countInStock: 94,
+    description: "Professional dress shirt with wrinkle-resistant fabric. Perfect for office wear and formal occasions.",
+  },
+
+  // Home & Kitchen
+  {
+    part: "HOME-001",
+    name: "Stainless Steel Coffee Maker",
+    slug: "stainless-steel-coffee-maker",
+    category: "Home & Kitchen",
+    image: "/images/pants3.jpg",
+    price: 79.99,
+    brand: "BrewMaster",
+    rating: 4.5,
+    numReviews: 124,
+    countInStock: 42,
+    description: "Programmable coffee maker with 12-cup capacity, auto-shutoff, and reusable filter. Start your mornings right.",
+  },
+  {
+    part: "HOME-002",
+    name: "Non-Stick Cookware Set",
+    slug: "non-stick-cookware-set",
+    category: "Home & Kitchen",
+    image: "/images/shirt1.jpg",
+    price: 149.99,
+    brand: "ChefPro",
+    rating: 4.6,
+    numReviews: 98,
+    countInStock: 31,
+    description: "10-piece non-stick cookware set with heat-resistant handles. Dishwasher safe and perfect for everyday cooking.",
+  },
+  {
+    part: "HOME-003",
+    name: "Smart Air Purifier",
+    slug: "smart-air-purifier",
+    category: "Home & Kitchen",
+    image: "/images/banner1.jpg",
+    price: 199.99,
+    brand: "PureAir",
+    rating: 4.7,
+    numReviews: 156,
+    countInStock: 28,
+    description: "HEPA air purifier with smart controls and air quality monitoring. Removes 99.97% of allergens and pollutants.",
+  },
+  {
+    part: "HOME-004",
+    name: "Luxury Bed Sheet Set",
+    slug: "luxury-bed-sheet-set",
+    category: "Home & Kitchen",
+    image: "/images/pants1.jpg",
+    price: 69.99,
+    brand: "DreamSleep",
+    rating: 4.5,
+    numReviews: 187,
+    countInStock: 76,
+    description: "Premium 1800 thread count bed sheet set. Soft, breathable, and available in multiple colors.",
+  },
+  {
+    part: "HOME-005",
+    name: "Robot Vacuum Cleaner",
+    slug: "robot-vacuum-cleaner",
+    category: "Home & Kitchen",
+    image: "/images/laptop.png",
+    price: 299.99,
+    brand: "CleanBot",
+    rating: 4.8,
+    numReviews: 203,
+    countInStock: 19,
+    description: "Smart robot vacuum with mapping technology, auto-recharge, and app control. Keep your home spotless effortlessly.",
+    isFeatured: true,
+  },
+
+  // Sports & Outdoors
+  {
+    part: "SPRT-001",
+    name: "Yoga Mat Premium",
+    slug: "yoga-mat-premium",
+    category: "Sports & Outdoors",
+    image: "/images/shirt2.jpg",
+    price: 34.99,
+    brand: "ZenFit",
+    rating: 4.6,
+    numReviews: 142,
+    countInStock: 88,
+    description: "Extra-thick yoga mat with non-slip surface. Includes carrying strap for easy transport to the gym or studio.",
+  },
+  {
+    part: "SPRT-002",
+    name: "Camping Tent 4-Person",
+    slug: "camping-tent-4-person",
+    category: "Sports & Outdoors",
+    image: "/images/banner2.jpg",
+    price: 159.99,
+    brand: "OutdoorPro",
+    rating: 4.4,
+    numReviews: 78,
+    countInStock: 25,
+    description: "Waterproof camping tent with easy setup and ventilation windows. Perfect for family camping adventures.",
+  },
+  {
+    part: "SPRT-003",
+    name: "Mountain Bike 27.5\"",
+    slug: "mountain-bike-275",
+    category: "Sports & Outdoors",
+    image: "/images/pants2.jpg",
+    price: 449.99,
+    brand: "TrailRider",
+    rating: 4.7,
+    numReviews: 95,
+    countInStock: 14,
+    description: "Durable mountain bike with front suspension and 21-speed gears. Conquer any trail with confidence.",
+  },
+  {
+    part: "SPRT-004",
+    name: "Adjustable Dumbbell Set",
+    slug: "adjustable-dumbbell-set",
+    category: "Sports & Outdoors",
+    image: "/images/shirt3.jpg",
+    price: 219.99,
+    brand: "FitStrong",
+    rating: 4.8,
+    numReviews: 167,
+    countInStock: 37,
+    description: "Space-saving adjustable dumbbells from 5 to 52.5 lbs. Complete home gym solution for strength training.",
+  },
+  {
+    part: "SPRT-005",
+    name: "Hydration Backpack",
+    slug: "hydration-backpack",
+    category: "Sports & Outdoors",
+    image: "/images/ai2.jpeg",
+    price: 54.99,
+    brand: "HydroGear",
+    rating: 4.5,
+    numReviews: 89,
+    countInStock: 62,
+    description: "Lightweight hydration pack with 2L bladder and multiple compartments. Perfect for hiking and cycling.",
+  },
+];
+
+// Dummy Banners
+const banners = [
+  {
+    name: "Summer Electronics Sale",
+    slug: "summer-electronics-sale",
+    image: "/images/banner1.jpg",
+  },
+  {
+    name: "New Fashion Collection",
+    slug: "new-fashion-collection",
+    image: "/images/banner2.jpg",
+  },
+  {
+    name: "Smart Laptop Deals",
+    slug: "smart-laptop-deals",
+    image: "/images/laptop.png",
+  },
+  {
+    name: "AI Technology Showcase",
+    slug: "ai-technology-showcase",
+    image: "/images/ai2.jpeg",
+  },
+];
+
+async function seed() {
+  try {
+    console.log('🌱 Connecting to database...');
+    await dbConnect();
+    
+    console.log('🗑️  Clearing existing data...');
+    await ProductModel.deleteMany({});
+    await BannerModel.deleteMany({});
+    
+    console.log('📦 Seeding products...');
+    const createdProducts = await ProductModel.insertMany(products);
+    console.log(`✅ Created ${createdProducts.length} products`);
+    
+    console.log('🎨 Seeding banners...');
+    const createdBanners = await BannerModel.insertMany(banners);
+    console.log(`✅ Created ${createdBanners.length} banners`);
+    
+    console.log('✨ Seeding completed successfully!');
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ Error seeding database:', error);
+    process.exit(1);
+  }
+}
+
+// Run seed if this file is executed directly
+if (require.main === module) {
+  seed();
+}
+
+export default seed;

@@ -23,12 +23,12 @@ export default function OrderDetailsPage({
   }, []);
 
   return (
-    <div className="">
+    <div>
       <OrderDetails
         paypalClientId={process.env.PAYPAL_CLIENT_ID || 'sb'}
         orderId={params.id}
       />
-      <div className="my-8">
+      <div className="container mx-auto px-4 lg:px-8 py-8">
         <OrderTracking orderId={params.id} session={session} />
       </div>
     </div>

@@ -43,7 +43,7 @@ export const Rating = ({
         {value >= 5 ? <Full /> : value >= 4.5 ? <Half /> : <Empty />}
       </div>
 
-      {caption && <span className="text-sm">{caption}</span>}
+      {caption && <span className="text-sm text-base-content/60">{caption}</span>}
     </div>
   )
 }

@@ -1,66 +1,36 @@
 import { getServerSession } from "next-auth";
 import dbConnect from "@/lib/dbConnect";
-import OrderModel from "@/lib/models/OrderModel";
 import ProductModel from "@/lib/models/ProductModel";
-import { round2 } from "@/lib/utils";
 import { NextResponse } from "next/server";
 import { options } from "../../auth/[...nextauth]/options";
-import { OrderItem } from "@/lib/types";
 
-const calcPrices = (orderItems: OrderItem[]) => {
-  const itemsPrice = round2(
-    orderItems.reduce((acc, item) => acc + item.price * item.qty, 0)
-  );
-  const shippingPrice = round2(itemsPrice > 100 ? 0 : 10);
-  const taxPrice = round2(Number((0.15 * itemsPrice).toFixed(2)));
-  const totalPrice = round2(itemsPrice + shippingPrice + taxPrice);
-
-  return { itemsPrice, shippingPrice, taxPrice, totalPrice };
-};
-
-export async function POST(req: Request) {
+export async function POST() {
   const session = await getServerSession(options);
 
-  if (!session || !session.user) {
+  if (!session || !session.user?.isAdmin) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
+  await dbConnect();
+  const randomId = Math.floor(Math.random() * 10000);
+  const product = new ProductModel({
+    part: `PART-${randomId}`,
+    name: "Sample Product",
+    slug: "sample-product-" + Math.random(),
+    image: "/images/shirt1.jpg",
+    price: 0,
+    category: "Sample Category",
+    brand: "Sample Brand",
+    countInStock: 0,
+    description: "Sample description",
+    rating: 0,
+    numReviews: 0,
+  });
+
   try {
-    const payload = await req.json();
-    await dbConnect();
-
-    const dbProductPrices = await ProductModel.find(
-      {
-        _id: { $in: payload.items.map((x: { _id: string }) => x._id) },
-      },
-      "price"
-    );
-
-    const dbOrderItems = payload.items.map((x: { _id: string }) => ({
-      ...x,
-      product: x._id,
-      price:
-        dbProductPrices.find((p) => p._id.toString() === x._id)?.price || 0,
-      _id: undefined,
-    }));
-
-    const { itemsPrice, taxPrice, shippingPrice, totalPrice } =
-      calcPrices(dbOrderItems);
-
-    const newOrder = new OrderModel({
-      items: dbOrderItems,
-      itemsPrice,
-      taxPrice,
-      shippingPrice,
-      totalPrice,
-      shippingAddress: payload.shippingAddress,
-      paymentMethod: payload.paymentMethod,
-      user: session.user._id,
-    });
-
-    const createdOrder = await newOrder.save();
+    await product.save();
     return NextResponse.json(
-      { message: "Order has been created", order: createdOrder },
+      { message: "Product created successfully", product },
       { status: 201 }
     );
   } catch (err: any) {
