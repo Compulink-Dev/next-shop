@@ -2,6 +2,7 @@
 import CheckoutSteps from "@/components/CheckoutSteps";
 import useCartService from "@/lib/hooks/useCartStore";
 import { ShippingAddress } from "@/lib/types";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { SubmitHandler, ValidationRule, useForm } from "react-hook-form";
@@ -22,6 +23,16 @@ const Form = () => {
       postalCode: "",
       country: "",
     },
+  });
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    if (status === "loading") return; // Still loading auth state
+
+    if (!session) {
+      // User not logged in, redirect to sign in
+      router.push(`/signin?callbackUrl=/shipping`);
+    }
   });
 
   useEffect(() => {
@@ -50,7 +61,9 @@ const Form = () => {
   }) => (
     <div>
       <label className="label" htmlFor={id}>
-        <span className="label-text font-semibold text-base-content">{name}</span>
+        <span className="label-text font-semibold text-base-content">
+          {name}
+        </span>
       </label>
       <input
         type="text"
@@ -72,23 +85,27 @@ const Form = () => {
     <div className="min-h-screen bg-base-100">
       <div className="container mx-auto px-4 lg:px-8 py-8">
         <CheckoutSteps current={1} />
-        
+
         <div className="max-w-2xl mx-auto mt-8">
           <div className="bg-base-200 rounded-2xl p-8 border border-base-300">
-            <h1 className="text-3xl font-bold text-base-content mb-2">Shipping Address</h1>
-            <p className="text-base-content/60 mb-8">Enter your delivery information</p>
-            
+            <h1 className="text-3xl font-bold text-base-content mb-2">
+              Shipping Address
+            </h1>
+            <p className="text-base-content/60 mb-8">
+              Enter your delivery information
+            </p>
+
             <form onSubmit={handleSubmit(formSubmit)} className="space-y-6">
               <FormInput name="Full Name" id="fullName" required />
               <FormInput name="Address" id="address" required />
-              
+
               <div className="grid md:grid-cols-2 gap-6">
                 <FormInput name="City" id="city" required />
                 <FormInput name="Postal Code" id="postalCode" required />
               </div>
-              
+
               <FormInput name="Country" id="country" required />
-              
+
               <div className="pt-4">
                 <button
                   type="submit"

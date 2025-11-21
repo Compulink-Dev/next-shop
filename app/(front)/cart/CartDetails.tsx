@@ -24,7 +24,7 @@ export default function CartDetails() {
 
     if (!session) {
       // User not logged in, redirect to sign in
-      signIn("credentials", { callbackUrl: "/shipping" });
+      signIn("", { callbackUrl: "/shipping" });
       // Or you can use: router.push("/auth/signin?callbackUrl=/shipping");
     } else {
       // User is logged in, proceed to shipping
