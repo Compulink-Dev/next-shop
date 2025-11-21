@@ -6,22 +6,39 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { signIn, useSession } from "next-auth/react";
 
 export default function CartDetails() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const { items, itemsPrice, decrease, increase, remove, clear } =
     useCartService();
   const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted)
+  const handleProceedToCheckout = () => {
+    if (status === "loading") return; // Still loading auth state
+
+    if (!session) {
+      // User not logged in, redirect to sign in
+      signIn("credentials", { callbackUrl: "/shipping" });
+      // Or you can use: router.push("/auth/signin?callbackUrl=/shipping");
+    } else {
+      // User is logged in, proceed to shipping
+      router.push("/shipping");
+    }
+  };
+
+  if (!mounted) {
     return (
       <div className="container mx-auto px-4 lg:px-8 py-16 text-center">
         <span className="loading loading-spinner loading-lg text-primary"></span>
       </div>
     );
+  }
 
   return (
     <div className="min-h-screen bg-base-100">
@@ -167,12 +184,25 @@ export default function CartDetails() {
                 </div>
 
                 <button
-                  onClick={() => router.push("/shipping")}
-                  className="btn btn-primary w-full rounded-full gap-2 shadow-lg hover:shadow-xl transition-all"
+                  onClick={handleProceedToCheckout}
+                  disabled={status === "loading"}
+                  className="btn btn-primary w-full rounded-full gap-2 shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
                 >
-                  Proceed to Checkout
-                  <ArrowRight className="w-5 h-5" />
+                  {status === "loading" ? (
+                    <span className="loading loading-spinner loading-sm"></span>
+                  ) : (
+                    <>
+                      Proceed to Checkout
+                      <ArrowRight className="w-5 h-5" />
+                    </>
+                  )}
                 </button>
+
+                {!session && status !== "loading" && (
+                  <p className="text-sm text-warning text-center mt-3">
+                    Please sign in to proceed with checkout
+                  </p>
+                )}
 
                 <div className="mt-6 text-center">
                   <Link

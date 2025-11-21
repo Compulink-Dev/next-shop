@@ -1,34 +1,38 @@
 "use client";
-import { signIn, useSession } from "next-auth/react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-import Link from "next/link";
-import { Mail, Lock, LogIn, Cpu } from "lucide-react";
+import { SubmitHandler, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { User, Mail, Lock, UserPlus, Cpu, ChevronLeft } from "lucide-react";
 
 type Inputs = {
+  name: string;
   email: string;
   password: string;
+  confirmPassword: string;
 };
 
 const Form = () => {
   const { data: session } = useSession();
 
   const params = useSearchParams();
-  let callbackUrl = params.get("callbackUrl") || "/";
   const router = useRouter();
-
+  let callbackUrl = params.get("callbackUrl") || "/";
   const {
     register,
     handleSubmit,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<Inputs>({
     defaultValues: {
+      name: "",
       email: "",
       password: "",
+      confirmPassword: "",
     },
   });
-
   useEffect(() => {
     if (session && session.user) {
       router.push(callbackUrl);
@@ -36,11 +40,35 @@ const Form = () => {
   }, [callbackUrl, params, router, session]);
 
   const formSubmit: SubmitHandler<Inputs> = async (form) => {
-    const { email, password } = form;
-    signIn("credentials", {
-      email,
-      password,
-    });
+    const { name, email, password } = form;
+
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+        }),
+      });
+      if (res.ok) {
+        return router.push(
+          `/signin?callbackUrl=${callbackUrl}&success=Account has been created`
+        );
+      } else {
+        const data = await res.json();
+        throw new Error(data.message);
+      }
+    } catch (err: any) {
+      const error =
+        err.message && err.message.indexOf("E11000") === 0
+          ? "Email is duplicate"
+          : err.message;
+      toast.error(error || "error");
+    }
   };
   return (
     <div className="min-h-screen flex items-center justify-center bg-base-100 py-12 px-4">
@@ -53,30 +81,39 @@ const Form = () => {
             </div>
           </div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
-            Welcome Back
+            Create Account
           </h1>
-          <p className="text-base-content/60">Sign in to access your account</p>
+          <p className="text-base-content/60">
+            Join Compulink IT Solutions today
+          </p>
         </div>
-
         {/* Card */}
         <div className="bg-base-200 rounded-2xl p-8 border border-base-300 shadow-xl">
-          {/* Alerts */}
-          {params.get("error") && (
-            <div className="alert alert-error mb-6 rounded-xl">
-              <span>
-                {params.get("error") === "CredentialsSignin"
-                  ? "Invalid email or password"
-                  : params.get("error")}
-              </span>
+          <form onSubmit={handleSubmit(formSubmit)} className="space-y-5">
+            {/* Name Field */}
+            <div>
+              <label className="label" htmlFor="name">
+                <span className="label-text font-semibold">Full Name</span>
+              </label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-base-content/50" />
+                <input
+                  type="text"
+                  id="name"
+                  {...register("name", {
+                    required: "Name is required",
+                  })}
+                  className="input input-bordered w-full pl-10"
+                  placeholder="John Doe"
+                />
+              </div>
+              {errors.name?.message && (
+                <p className="text-error text-sm mt-1 ml-1">
+                  {errors.name.message}
+                </p>
+              )}
             </div>
-          )}
-          {params.get("success") && (
-            <div className="alert alert-success mb-6 rounded-xl">
-              <span>{params.get("success")}</span>
-            </div>
-          )}
 
-          <form onSubmit={handleSubmit(formSubmit)} className="space-y-6">
             {/* Email Field */}
             <div>
               <label className="label" htmlFor="email">
@@ -129,18 +166,48 @@ const Form = () => {
               )}
             </div>
 
+            {/* Confirm Password Field */}
+            <div>
+              <label className="label" htmlFor="confirmPassword">
+                <span className="label-text font-semibold">
+                  Confirm Password
+                </span>
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-base-content/50" />
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  {...register("confirmPassword", {
+                    required: "Confirm Password is required",
+                    validate: (value) => {
+                      const { password } = getValues();
+                      return password === value || "Passwords should match!";
+                    },
+                  })}
+                  className="input input-bordered w-full pl-10"
+                  placeholder="••••••••"
+                />
+              </div>
+              {errors.confirmPassword?.message && (
+                <p className="text-error text-sm mt-1 ml-1">
+                  {errors.confirmPassword.message}
+                </p>
+              )}
+            </div>
+
             {/* Submit Button */}
             <button
               type="submit"
               disabled={isSubmitting}
-              className="btn btn-primary w-full gap-2 rounded-full text-lg h-12"
+              className="btn btn-primary w-full gap-2 rounded-full text-lg h-12 mt-6"
             >
               {isSubmitting ? (
                 <span className="loading loading-spinner"></span>
               ) : (
                 <>
-                  <LogIn className="w-5 h-5" />
-                  Sign In
+                  <UserPlus className="w-5 h-5" />
+                  Create Account
                 </>
               )}
             </button>
@@ -149,26 +216,35 @@ const Form = () => {
           {/* Divider */}
           <div className="divider my-6">OR</div>
 
-          {/* Register Link */}
+          {/* Sign In Link */}
           <div className="text-center">
             <p className="text-base-content/70">
-              {`Don't have an account?`}{" "}
+              Already have an account?{" "}
               <Link
                 className="link link-primary font-semibold"
-                href={`/register?callbackUrl=${callbackUrl}`}
+                href={`/signin?callbackUrl=${callbackUrl}`}
               >
-                Create Account
+                Sign In
               </Link>
             </p>
           </div>
         </div>
-
         {/* Footer */}
         <p className="text-center text-sm text-base-content/50 mt-6">
-          By signing in, you agree to our Terms of Service and Privacy Policy
+          By creating an account, you agree to our Terms of Service and Privacy
+          Policy
         </p>
+
+        <div
+          className="flex items-center mt-8 cursor-pointer text-slate-400 hover:text-base-content transition-colors gap-2"
+          onClick={() => router.back()}
+        >
+          <ChevronLeft size={16} />
+          <p className="text-sm">Back to previous page</p>
+        </div>
       </div>
     </div>
   );
 };
+
 export default Form;
