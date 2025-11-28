@@ -5,12 +5,17 @@ import ProductModel from "@/lib/models/ProductModel";
 export const revalidate = 3600;
 
 const getLatest = cache(async () => {
-  await dbConnect();
-  const products = await ProductModel.find({})
-    .sort({ _id: -1 })
-    .limit(6)
-    .lean();
-  return products as any[];
+  try {
+    await dbConnect();
+    const products = await ProductModel.find({})
+      .sort({ _id: -1 })
+      .limit(6)
+      .lean();
+    return products;
+  } catch (error) {
+    console.error("Error in getLatest:", error);
+    return [];
+  }
 });
 
 const getAll = cache(async () => {
@@ -28,9 +33,14 @@ const getFeatured = cache(async () => {
 });
 
 const getProductsByCategory = cache(async (category: string) => {
-  await dbConnect();
-  const products = await ProductModel.find({ category }).lean();
-  return products as any[];
+  try {
+    await dbConnect();
+    const products = await ProductModel.find({ category }).lean();
+    return products;
+  } catch (error) {
+    console.error(`Error in getProductsByCategory for ${category}:`, error);
+    return [];
+  }
 });
 
 const getBySlug = cache(async (slug: string) => {
@@ -126,11 +136,15 @@ const getByQuery = cache(
 );
 
 const getCategories = cache(async () => {
-  await dbConnect();
-  const categories = await ProductModel.find().distinct("category");
-  return categories;
+  try {
+    await dbConnect();
+    const categories = await ProductModel.find().distinct("category");
+    return categories;
+  } catch (error) {
+    console.error("Error in getCategories:", error);
+    return [];
+  }
 });
-
 const productService = {
   getLatest,
   getFeatured,
