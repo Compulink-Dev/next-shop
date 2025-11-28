@@ -17,6 +17,8 @@ export default async function Home() {
     })
   );
 
+  console.log("Products  : ", latestProducts);
+
   return (
     <>
       {/* Full-Width Hero Banner Section */}
@@ -28,7 +30,10 @@ export default async function Home() {
               id={`slide-${index}`}
               className="carousel-item relative w-full"
             >
-              <Link href={`/product/${product.slug}`} className="relative w-full block group">
+              <Link
+                href={`/product/${product.slug}`}
+                className="relative w-full block group"
+              >
                 <img
                   src={product.image}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
@@ -48,8 +53,18 @@ export default async function Home() {
                       </p>
                       <button className="btn btn-primary btn-lg rounded-full gap-2 shadow-2xl hover:scale-105 transition-transform">
                         Shop Now
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M13 7l5 5m0 0l-5 5m5-5H6"
+                          />
                         </svg>
                       </button>
                     </div>
@@ -97,11 +112,15 @@ export default async function Home() {
             </div>
             <div>
               <div className="text-4xl lg:text-5xl font-bold mb-2">10K+</div>
-              <div className="text-sm lg:text-base opacity-90">Happy Clients</div>
+              <div className="text-sm lg:text-base opacity-90">
+                Happy Clients
+              </div>
             </div>
             <div>
               <div className="text-4xl lg:text-5xl font-bold mb-2">99%</div>
-              <div className="text-sm lg:text-base opacity-90">Satisfaction</div>
+              <div className="text-sm lg:text-base opacity-90">
+                Satisfaction
+              </div>
             </div>
           </div>
         </div>
@@ -117,14 +136,20 @@ export default async function Home() {
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {latestProducts.map((product: any) => (
-            <ProductItem key={product.slug} product={convertDocToObj(product)} />
+            <ProductItem
+              key={product.slug}
+              product={convertDocToObj(product)}
+            />
           ))}
         </div>
       </section>
 
       {/* Category Products Sections */}
       {categoryProducts.map((categoryProduct, idx) => (
-        <section key={categoryProduct.category} className="container mx-auto px-4 mt-16 mb-8">
+        <section
+          key={categoryProduct.category}
+          className="container mx-auto px-4 mt-16 mb-8"
+        >
           <div className="flex items-center gap-4 mb-8">
             <div className="h-1 w-12 bg-gradient-to-r from-secondary to-accent rounded-full"></div>
             <h2 className="text-4xl font-bold text-base-content">
